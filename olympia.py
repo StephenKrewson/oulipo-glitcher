@@ -73,7 +73,7 @@ def findWords(l, lexicon):                  # Function 3
 def glitchFile(filename):
     '''Transforms found words in JPG and writes a modified file'''
     with open(filename,'rb') as f:          # Open JPEG and read it in binary mode
-        input_string = f.read()             
+        input_string = f.read().decode('ASCII', 'ignore')             
     results = indexChars(input_string)      # Call indexChars function
     if hist == 1:
         #print "\nChars in " + filename + ":\n"
@@ -88,7 +88,7 @@ def glitchFile(filename):
                 replace = ' '               # Semantic content 'whited' out
             else: replace = string.ascii_letters[(char_val + shift) % 52]
             new_string = new_string[:j[1]] + replace + new_string[j[1]+1:]
-    with open(filename.split('.')[0] + 'MOD.' + filename.split('.')[1], 'wb') as target:
+    with open(bytes((filename.split('.')[0] + 'MOD.' + filename.split('.')[1], 'wb'))) as target:
         target.write(new_string)
 #############################################
 for dirpath, dirnames, filenames in walk(path.abspath(sys.argv[1])):
