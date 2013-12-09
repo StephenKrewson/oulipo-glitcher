@@ -35,15 +35,14 @@ def indexChars(input_string):               # Function 1
             pass
     return (d, l)
 #############################################
-def printHistogram(d):                      # Function 2
-    '''Prints out chars by frequency'''
+'''def printHistogram(d):                      # Function 2
     ordered = sorted(d, key=d.get, reverse=False)
     max_val = d[ordered[-1]]                # Normalize max value to 50 chars
     total = 0                               # 
     for key in ordered:
         total += d[key]
         hist = key * (int(d[key]) * 50 / max_val)
-        print(key, d[key], hist, total)
+        print(key, d[key], hist, total)'''
 #############################################
 def findWords(l, lexicon):                  # Function 3
     '''Finds English words in alphabetical chars'''
@@ -75,10 +74,6 @@ def glitchFile(filename):
     with open(filename,'rb') as f:          # Open JPEG and read it in binary mode
         input_string = f.read().decode('ASCII', 'ignore')             
     results = indexChars(input_string)      # Call indexChars function
-    if hist == 1:
-        #print "\nChars in " + filename + ":\n"
-        printHistogram(results[0])          # Optional print histogram call
-    #print "\nWords in " + filename + ":\n"  # Title separates word lists
     words_found = findWords(results[1], lexicon)
     new_string = input_string               # Build up new string from substrings of input
     for i in words_found:
@@ -88,7 +83,8 @@ def glitchFile(filename):
                 replace = ' '               # Semantic content 'whited' out
             else: replace = string.ascii_letters[(char_val + shift) % 52]
             new_string = new_string[:j[1]] + replace + new_string[j[1]+1:]
-    with open(bytes((filename.split('.')[0] + 'MOD.' + filename.split('.')[1], 'wb'))) as target:
+    print((filename.split('.'))[1])
+    with open(bytes(((filename.split('.')[0]) + 'MOD.' + (filename.split('.')[1])), 'w')) as target:
         target.write(new_string)
 #############################################
 for dirpath, dirnames, filenames in walk(path.abspath(sys.argv[1])):
