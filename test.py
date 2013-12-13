@@ -1,5 +1,11 @@
-import locale, re
+import locale, re, sys, string
 from collections import defaultdict
+from os import walk, path
+import time
+start_time = time.clock()
+
+lexicon = set(open('dict2.txt','r').read().lower().split())
+
 
 def guess_notepad_encoding(filepath, default_ansi_encoding=None):
     with open(filepath, 'rb') as f:
@@ -47,4 +53,71 @@ def printHistogram(d):                      # Function 2
         #hist = key * (int(int(d[key])) * 50 / int(max_val))
         print(key, d[key], total)
 
+def findWords(l, lexicon):                  # Function 3
+    '''Finds English words in alphabetical chars'''
+    max_len = max(list(map(len, lexicon)))        # Longest word in the set of words
+    words_found = []                        # set of words found, starts empty
+    for i in range(len(l)):                # for each possible starting position in the corpus
+        chunk = l[i:i+max_len]              # chunk that is the size of the longest word
+        for j in range(len(chunk)):        # loop to check each possible subchunk
+            word = chunk[:j]
+            test = ''                       # Grap letters from the tuple
+            for k in range(len(word)):
+                test += word[k][0].lower()  # Build up word
+            if test in lexicon and len(test) > word_min:
+                if oulipo == 1:             # Option for N + ? glitch
+                    same_length = sorted([x for x in lexicon if len(x) == len(test)])
+                    new_word = same_length[(same_length.index(test) + shift2) % len(same_length)]
+                    #print test, new_word, shift2, len(same_length) 
+                    for y in range(len(word)):
+                        if word[y][0].isupper():
+                            word[y] = (new_word[y].upper(), word[y][1])
+                        else: word[y] = (new_word[y], word[y][1])
+                    words_found.append(word)
+                else:
+                    words_found.append(word)# Add list of tuples to master word list
+    return words_found                      # Returns array of valid words and their indexes
+
+word_min = int(sys.argv[1])
+oulipo = int(sys.argv[2])
+shift2 = int(sys.argv[3])
+delete = int(sys.argv[4])
+shift = int(sys.argv[5])
 printHistogram(indexChars(shitt)[0])
+
+inputString = indexChars(shitt)[1]
+
+holder = findWords(inputString, lexicon)
+for word in holder:
+    string1 = ''
+    for letter in word:
+        string1 += letter[0].lower()
+    print(string1)
+
+def glitchFile(filename):
+    '''Transforms found words in JPG and writes a modified file'''
+    with open(filename,'rb') as f:          # Open JPEG and read it in binary mode
+        input_string = f.read().decode('ASCII', 'ignore')             
+    results = indexChars(input_string)      # Call indexChars function
+    words_found = findWords(results[1], lexicon)
+    new_string = input_string               # Build up new string from substrings of input
+    for i in words_found:
+        for j in i:
+            char_val = string.ascii_letters.index(j[0]) 
+            if delete == 1:
+                replace = ' '               # Semantic content 'whited' out
+            else: replace = string.ascii_letters[(char_val + shift) % 52]
+            new_string = new_string[:j[1]] + replace + new_string[j[1]+1:]
+    new_file = filename.split('.')[0] + 'MOD.' + filename.split('.')[1]
+    #print(new_string)
+    with open(new_file, 'wb') as f:
+        f.write(bytearray(new_string, 'ANSI'))
+
+for dirpath, dirnames, filenames in walk(path.abspath(sys.argv[6])):
+    for i in filenames:
+        files = path.join(dirpath, i)
+        if files[-7:-4] != 'MOD':
+            print(files)
+            print(glitchFile(files))               # Call glitch function on original files
+print('Program:\t{0}\nDuration (s):\t{1}\nDirectory:\t{2}\nNo. of files:\t{3}\nHistogram?\t{4}\nWord length >\t{5}\nDelete words?\t{6}\nChars shifted:\t{7}\nOulipo swap?\t{8}\nIf yes, N + ?:\t{9}'.format(
+    path.basename(__file__), time.clock() - start_time, dirpath, len(filenames), hist, word_min, delete, shift, oulipo, shift2))
