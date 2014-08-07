@@ -4,7 +4,7 @@ from os import walk, path
 import time
 start_time = time.clock()
 
-lexicon = set(open('dict2.txt','r').read().lower().split())
+lexicon = set(open('dict.txt','r').read().lower().split())
 
 
 def guess_notepad_encoding(filepath, default_ansi_encoding=None):
@@ -17,9 +17,9 @@ def guess_notepad_encoding(filepath, default_ansi_encoding=None):
     # presumably "ANSI"
     return default_ansi_encoding or locale.getpreferredencoding()
 
-print(guess_notepad_encoding('manet2.jpg'))
+print(guess_notepad_encoding('lake.jpg'))
 
-with open('manet2.jpg', 'rb') as f:
+with open('lake.jpg', 'rb') as f:
     shitt = f.read().decode('ASCII', 'ignore')
     for i in f.readlines():
         print(i.strip().decode('utf-8-sig', 'ignore'))

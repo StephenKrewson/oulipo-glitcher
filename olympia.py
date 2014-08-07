@@ -15,7 +15,7 @@ delete = int(sys.argv[4])                   # Parameter for deleting semantic co
 shift = int(sys.argv[5])                    # Parameter for shifting chars
 oulipo = int(sys.argv[6])                   # Parameter for Oulipean word swap
 shift2 = int(sys.argv[7])                   # Parameter for N + ?
-lexicon = set(open('dict2.txt','r').read().lower().split())
+lexicon = set(open('dict.txt','r').read().lower().split())
 #############################################
 def indexChars(input_string):               # Function 1
     '''Gets freqs of all chars, indexes alphabetical chars'''
@@ -85,7 +85,7 @@ def glitchFile(filename):
             else: replace = string.ascii_letters[(char_val + shift) % 52]
             new_string = new_string[:j[1]] + replace + new_string[j[1]+1:]
     print((filename.split('.'))[1])
-    with open(bytes(((filename.split('.')[0]) + 'MOD.' + (filename.split('.')[1])), 'w')) as target:
+    with open(bytes(((filename.split('.')[0]) + 'MOD.' + (filename.split('.')[1]))), 'w') as target:
         target.write(new_string)
 #############################################
 for dirpath, dirnames, filenames in walk(path.abspath(sys.argv[1])):
