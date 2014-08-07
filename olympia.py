@@ -8,6 +8,7 @@ from collections import defaultdict
 from itertools import chain
 from os import walk, path              
 #############################################
+#directory is sys.argv[1]
 hist = int(sys.argv[2])                     # Parameter for printing histogram
 word_min = int(sys.argv[3])                 # Parameter for ignoring short words
 delete = int(sys.argv[4])                   # Parameter for deleting semantic content
