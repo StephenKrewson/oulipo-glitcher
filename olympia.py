@@ -93,7 +93,7 @@ for dirpath, dirnames, filenames in walk(path.abspath(sys.argv[1])):
         files = path.join(dirpath, i)
         if files[-7:-4] != 'MOD':
             print(files)
-            print(glitchFile(files))               # Call glitch function on original files
+            glitchFile(files)               # Call glitch function on original files
 print('Program:\t{0}\nDuration (s):\t{1}\nDirectory:\t{2}\nNo. of files:\t{3}\nHistogram?\t{4}\nWord length >\t{5}\nDelete words?\t{6}\nChars shifted:\t{7}\nOulipo swap?\t{8}\nIf yes, N + ?:\t{9}'.format(
     path.basename(__file__), time.clock() - start_time, dirpath, len(filenames), hist, word_min, delete, shift, oulipo, shift2))
 #############################################
