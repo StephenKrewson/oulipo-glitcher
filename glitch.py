@@ -19,8 +19,8 @@ def glitch(img, type, lexicon, destination):
 	'''Oulipean glitch of binary data within JPEG or PNG'''
 	
 	# figure out how to deploy this flag
-	delete = 1
-	shift = 7
+	delete = 0
+	shift = 0 # this isn't the oulipo shift; more like Caesar cipher shift
 	
 	# first step is to open the file and convert to byte array
 	with open(img,'rb') as f:
@@ -59,7 +59,7 @@ def glitch(img, type, lexicon, destination):
 			#print(new_string)			
 			with open(new_file, 'wb') as ofp:
 				ofp.write(bytes[:jpeg_start])
-				ofp.write(bytearray(new_string, 'ascii'))
+				ofp.write(bytes[jpeg_start:])#bytearray(char_array, 'ascii'))
 		
 		# PNG files
 		else:
@@ -69,8 +69,8 @@ def glitch(img, type, lexicon, destination):
 def findWords(l, lexicon):                  # Function 3
     '''Finds English words in alphabetical chars'''
     oulipo = 1
-    word_min = 3
-    shift2 = 7
+    word_min = 5
+    shift2 = 0
 	
     max_len = 10 #max(list(map(len, lexicon)))        # Longest word in the set of words
     words_found = []                        # set of words found, starts empty
@@ -93,6 +93,7 @@ def findWords(l, lexicon):                  # Function 3
                     words_found.append(word)
                 else:
                     words_found.append(word)# Add list of tuples to master word list
+    print(words_found)
     return words_found                      # Returns array of valid words and their indexes
 			
 			
