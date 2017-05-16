@@ -15,34 +15,32 @@ import sys
 def glitch(img, type):
 	'''Oulipean glitch of binary data within JPEG or PNG'''
 	
-	# first step is to open the file as byte array
+	# first step is to open the file
 	with open(img,'rb') as f:
-	
-		# the size of the file in bytes
-		img_size = path.getsize(img)
+		
+		# then convert to byte array
+		bytes = bytearray(f.read())
 	
 		# skip headers if it's a jpeg
 		if type is 'jpeg':
-			print("jpeg", img)
-			jpeg_start = skip_jpeg_header(f, img_size)
+			jpeg_start = skip_jpeg_header(bytes)
 			print("starting byte", jpeg_start)
+			
+			# now open up a .jpg file in out-dir, write headers to it
 		
 		else:
 			print("PNG not supported yet.")
 		
-def skip_jpeg_header(fp, size):
-	'''skips to the start of the scan in a jpeg; input is file pointer'''
+def skip_jpeg_header(byte_array):
+	'''skips to the start of the scan in a jpeg; input is byte array, see:
+	https://github.com/snorpey/glitch-canvas/blob/master/src/glitch/jpgHeaderLength.js
+	'''
 	start_scan = 417
-	
-	for i in range(size-1):
-		if fp[i] is 0xff and fp[i+1] is 0xDA:
+	for i in range(len(byte_array) - 1):
+		if byte_array[i] is 0xff and byte_array[i+1] is 0xDA:
 			start_scan = i + 2
 			break
-			
 	return start_scan
-	
-	
-	
 	
 
 # Initialize the program; get params and check file
