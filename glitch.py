@@ -11,6 +11,7 @@ from collections import defaultdict
 import imghdr
 from os import walk, path
 import re
+import string
 import sys
 
 
@@ -18,7 +19,8 @@ def glitch(img, type, lexicon, destination):
 	'''Oulipean glitch of binary data within JPEG or PNG'''
 	
 	# figure out how to deploy this flag
-	delete = 0
+	delete = 1
+	shift = 7
 	
 	# first step is to open the file and convert to byte array
 	with open(img,'rb') as f:
@@ -29,27 +31,35 @@ def glitch(img, type, lexicon, destination):
 			jpeg_start = skip_jpeg_header(bytes)
 			scan_area = bytes[jpeg_start:]
 			
+			# interpret as ASCII, ignoring errors (another version use utf-8 + accents)
+			char_array = scan_area.decode('ascii', 'ignore')
+			
 			# get byte frequencies and alphabet locations
-			indexed = index_chars(scan_area)
+			indexed = index_chars(char_array)
 			
 			words_found = findWords(indexed[1], lexicon)
 			
 			# now open up a .jpg file in out-dir, write headers to it
-			new_string = input_string
+			new_string = char_array
+			
 			for i in words_found:
 				for j in i:
 					char_val = string.ascii_letters.index(j[0])
 					if delete == 1:
 						replace = ' '               # Semantic content 'whited' out
-					else: replace = string.ascii_letters[(char_val + shift) % 52]
-						new_string = new_string[:j[1]] + replace + new_string[j[1]+1:]
+					else:
+						replace = string.ascii_letters[(char_val + shift) % 52]
+					
+					new_string = new_string[:j[1]] + replace + new_string[j[1]+1:]
 					
 					
-			new_file = filename.split('.')[0] + 'MOD.' + filename.split('.')[1]
+			new_file = path.join(destination, path.basename(img))
+			print(new_file)
+			
 			#print(new_string)			
 			with open(new_file, 'wb') as ofp:
 				ofp.write(bytes[:jpeg_start])
-				ofp.write(bytearray(new_string, 'ANSI'))
+				ofp.write(bytearray(new_string, 'ascii'))
 		
 		# PNG files
 		else:
@@ -99,15 +109,14 @@ def skip_jpeg_header(byte_array):
 	return start_scan
 
 
-def index_chars(byte_array):
+def index_chars(chars):
 	# counts for all utf-8 codepoints in the scan section of the image
 	d = defaultdict(lambda: 0)
 	
 	# list of tuples of (char, index) within the byte array
 	l = []
 	
-	# interpret as ASCII, ignoring errors (another version use utf-8 + accents)
-	chars = byte_array.decode('ascii', 'ignore')
+
 
 	# increment counts
 	for i,char in enumerate(chars):
@@ -182,7 +191,7 @@ def main():
 				
 			# assuming we have valid image...
 			print("glitching", i)
-			glitch(file, imgtype, lexicon)
+			glitch(file, imgtype, lexicon, path.abspath(sys.argv[2]))
 			
 	# end of main()
 	print("hippo")
