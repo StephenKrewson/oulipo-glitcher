@@ -23,18 +23,45 @@ def glitch(img, type, lexicon):
 		# skip headers if it's a jpeg
 		if type is 'jpeg':
 			jpeg_start = skip_jpeg_header(bytes)
+			scan_area = bytes[jpeg_start:]
 			
-			print("starting byte", jpeg_start)
+			# get byte frequencies and alphabet locations
+			indexed = index_chars(scan_area)
 			
-			index_chars(bytes[jpeg_start:])
-			
-			
+			words_found = findWords(indexed[1], lexicon)
 			
 			# now open up a .jpg file in out-dir, write headers to it
 		
 		else:
 			print("PNG not supported yet.")
 
+			
+def findWords(l, lexicon):                  # Function 3
+    '''Finds English words in alphabetical chars'''
+    max_len = max(list(map(len, lexicon)))        # Longest word in the set of words
+    words_found = []                        # set of words found, starts empty
+    for i in range(len(l)):                # for each possible starting position in the corpus
+        chunk = l[i:i+max_len]              # chunk that is the size of the longest word
+        for j in range(len(chunk)):        # loop to check each possible subchunk
+            word = chunk[:j]
+            test = ''                       # Grap letters from the tuple
+            for k in range(len(word)):
+                test += word[k][0].lower()  # Build up word
+            if test in lexicon and len(test) > word_min:
+                if oulipo == 1:             # Option for N + ? glitch
+                    same_length = sorted([x for x in lexicon if len(x) == len(test)])
+                    new_word = same_length[(same_length.index(test) + shift2) % len(same_length)]
+                    #print test, new_word, shift2, len(same_length) 
+                    for y in range(len(word)):
+                        if word[y][0].isupper():
+                            word[y] = (new_word[y].upper(), word[y][1])
+                        else: word[y] = (new_word[y], word[y][1])
+                    words_found.append(word)
+                else:
+                    words_found.append(word)# Add list of tuples to master word list
+    return words_found                      # Returns array of valid words and their indexes
+			
+			
 			
 def skip_jpeg_header(byte_array):
 	'''skips to the start of the scan in a jpeg; input is byte array, see:
@@ -55,11 +82,15 @@ def index_chars(byte_array):
 	# list of tuples of (char, index) within the byte array
 	l = []
 	
-	# interpret as utf-8, ignoring errors
-	chars = byte_array.decode('utf-8', 'ignore')
+	# interpret as ASCII, ignoring errors (another version use utf-8 + accents)
+	chars = byte_array.decode('ascii', 'ignore')
 
-	for char in chars:
+	# increment counts
+	for i,char in enumerate(chars):
 		d[char] += 1
+		# remember positions of all letters
+		if re.match('[a-zA-Z]', char):
+			l.append((char, i))
 		
 	
 	'''
@@ -75,17 +106,20 @@ def index_chars(byte_array):
 			
 		except UnicodeDecodeError:
 			pass'''
-	printHistogram(d)
+			
+	
 	return (d, l)
 	
 
 def printHistogram(d):                      # Function 2
     '''Prints out chars by frequency'''
+	# sort in ascending order of most frequent
     ordered = sorted(d, key=d.get, reverse=False)
-    max_val = d[ordered[-1]]                # Normalize max value to 50 chars
-    total = 0                               # 
+    max_val = d[ordered[-1]]
+	
+	# print out that character in proportion to its frequency
     for key in ordered:
-        total += d[key]
+		# but normalize such that the most frequent is 50 chars long
         hist = key * round(d[key] * 50 / max_val)
         print(key, hist)
 	
