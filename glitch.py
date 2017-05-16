@@ -14,8 +14,12 @@ import re
 import sys
 
 
-def glitch(img, type, lexicon):
+def glitch(img, type, lexicon, destination):
 	'''Oulipean glitch of binary data within JPEG or PNG'''
+	
+	# figure out how to deploy this flag
+	delete = 0
+	
 	# first step is to open the file and convert to byte array
 	with open(img,'rb') as f:
 		bytes = bytearray(f.read())
@@ -31,14 +35,34 @@ def glitch(img, type, lexicon):
 			words_found = findWords(indexed[1], lexicon)
 			
 			# now open up a .jpg file in out-dir, write headers to it
+			new_string = input_string
+			for i in words_found:
+				for j in i:
+					char_val = string.ascii_letters.index(j[0])
+					if delete == 1:
+						replace = ' '               # Semantic content 'whited' out
+					else: replace = string.ascii_letters[(char_val + shift) % 52]
+						new_string = new_string[:j[1]] + replace + new_string[j[1]+1:]
+					
+					
+			new_file = filename.split('.')[0] + 'MOD.' + filename.split('.')[1]
+			#print(new_string)			
+			with open(new_file, 'wb') as ofp:
+				ofp.write(bytes[:jpeg_start])
+				ofp.write(bytearray(new_string, 'ANSI'))
 		
+		# PNG files
 		else:
 			print("PNG not supported yet.")
 
 			
 def findWords(l, lexicon):                  # Function 3
     '''Finds English words in alphabetical chars'''
-    max_len = max(list(map(len, lexicon)))        # Longest word in the set of words
+    oulipo = 1
+    word_min = 3
+    shift2 = 7
+	
+    max_len = 10 #max(list(map(len, lexicon)))        # Longest word in the set of words
     words_found = []                        # set of words found, starts empty
     for i in range(len(l)):                # for each possible starting position in the corpus
         chunk = l[i:i+max_len]              # chunk that is the size of the longest word
